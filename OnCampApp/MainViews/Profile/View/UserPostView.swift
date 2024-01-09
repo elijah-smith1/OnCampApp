@@ -10,28 +10,28 @@ import Firebase
 import FirebaseFirestore
 
 
+
 struct UserPostsView: View {
-    @StateObject var viewmodel = ProfileViewModel()
-    @State var userPosts = [Post]()
+    @StateObject var viewModel = ProfileViewModel()
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(viewmodel.userPosts, id: \.id) { post in
+                    ForEach(viewModel.userPosts, id: \.id) { post in
                         PostCell(post: post)
-                    
                     }
                 }
             }
+            .onAppear {
+                Task{
+                    try await  viewModel.fetchUserPostData()
+                }
+            }
         }
-
-
-
-
-        }
-
     }
+}
+
 
 struct UserPostsViewPreviews: PreviewProvider {
     static var previews: some View {

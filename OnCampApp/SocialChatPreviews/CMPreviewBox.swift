@@ -27,16 +27,17 @@ struct CMPreviewBox: View {
                     VStack{
                         
                         
-                        NavigationLink(destination: Messages()) {
-                            Text("View All")
-                            
-                            
-                        }
+                       
                         
                         
                         ForEach(viewmodel.recentMessages, id: \.id) { message in
                             
                             CMCells(message: message) // Corrected variable name
+                        }
+                        NavigationLink(destination: Messages()) {
+                            Text("View All")
+                            
+                            
                         }
                         
                     }

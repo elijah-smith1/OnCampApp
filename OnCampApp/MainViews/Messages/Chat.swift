@@ -2,7 +2,7 @@ import SwiftUI
 import FirebaseFirestore
 
 struct Chat: View {
-    let user: User
+  //  let user: User
     var chatId: String
     @StateObject var viewmodel = ChatViewModel()
     @State private var messageText = ""
@@ -24,7 +24,7 @@ struct Chat: View {
                 messageText = ""  // Clear the input field after sending
             })
         }
-        .navigationBarTitle(user.username)
+        //.navigationBarTitle(user.username)
         .padding(.vertical)
         .onAppear {
             print(self.chatId)
@@ -41,6 +41,6 @@ struct Chat: View {
 // Update your PreviewProvider accordingly
 struct Chat_Previews: PreviewProvider {
     static var previews: some View {
-        Chat(user: User(username: "elijah", bio: "sosos", status: "status", school: "school", isVendor: false), chatId: "vikWMINzcbaWsn72tBsW")
+        Chat(chatId: "chat")
     }
 }

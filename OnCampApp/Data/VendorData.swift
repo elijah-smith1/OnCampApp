@@ -8,26 +8,24 @@
 import Foundation
 import Firebase
 import FirebaseFirestoreSwift
-
-
+import FirebaseFirestore
 
 
 struct Vendor: Identifiable {
-    @DocumentID var id: String? 
+    @DocumentID var id: String?
     var description: String
-    var schools : [String]
+    var schools: [String]
     var name: String
-    var image: String?
+    var image: String
     var category: String
     var rating: Double
-    var color: String
-    // Assuming `Product` is also a defined type
-    
+    var featured: Bool  // New field
 }
-
-
-
+@MainActor
 class VendorData: ObservableObject{
+    
+    @Published var vendorsByCategory: [String: [Vendor]] = [:]
+    
     
     func fetchVendorIds() async throws -> [String] {
         var vendorIds = [String]()
@@ -52,10 +50,11 @@ class VendorData: ObservableObject{
             description: data["description"] as? String ?? "",
             schools: data["schools"] as? [String] ?? [],
             name: data["name"] as? String ?? "",
-            image: data["image"] as? String,
+            image: data["image"] as? String ?? "",
             category: data["category"] as? String ?? "",
-            rating: data["rating"] as? Double ?? 0.0,
-            color: data["color"] as? String ?? ""
+            rating: data["rating"] as? Double ?? 0.0, 
+            featured: data["featured"] as? Bool ?? false
+        
         )
         
     }
@@ -135,10 +134,10 @@ class VendorData: ObservableObject{
                     "description": vendor.description,
                     "schools": vendor.schools,
                     "name": vendor.name,
-                    "image": vendor.image ?? "",
+                    "image": vendor.image,
                     "category": vendor.category,
-                    "rating": vendor.rating,
-                    "color": vendor.color
+                    "rating": vendor.rating
+
                 ]) { err in
                     if let err = err {
                         print("Error updating vendor: \(err)")
@@ -152,10 +151,9 @@ class VendorData: ObservableObject{
                     "description": vendor.description,
                     "schools": vendor.schools,
                     "name": vendor.name,
-                    "image": vendor.image ?? "",
+                    "image": vendor.image,
                     "category": vendor.category,
-                    "rating": vendor.rating,
-                    "color": vendor.color
+                    "rating": vendor.rating
                 ]) { err in
                     if let err = err {
                         print("Error creating new vendor: \(err)")
@@ -168,7 +166,42 @@ class VendorData: ObservableObject{
     }
 
    
-    
+
+    var sampleVendors: [Vendor] = [
+        // Hair Vendors
+        Vendor(id: nil, description: "Trendy hair styles and products", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Hair Glamour", image: "https://source.unsplash.com/random/300x300", category: "Hair", rating: 4.2, featured: true),
+        Vendor(id: nil, description: "Luxury hair salon services", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Elegant Strands", image: "https://source.unsplash.com/random/300x300", category: "Hair", rating: 4.8, featured: false),
+        Vendor(id: nil, description: "Affordable and stylish haircuts", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Barber's Edge", image: "https://source.unsplash.com/random/300x300", category: "Hair", rating: 4.1, featured: true),
+        Vendor(id: nil, description: "Professional hair care products", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Hair Care Central", image: "https://source.unsplash.com/random/300x300", category: "Hair", rating: 4.5, featured: false),
+
+        // Food Vendors
+        Vendor(id: nil, description: "Gourmet sandwiches and salads", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Green Bites Cafe", image: "https://source.unsplash.com/random/300x300", category: "Food", rating: 4.3, featured: false),
+        Vendor(id: nil, description: "Authentic Italian pizza", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Pizza Passion", image: "https://source.unsplash.com/random/300x300", category: "Food", rating: 4.7, featured: false),
+        Vendor(id: nil, description: "Delicious vegan options", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Veggie Delight", image: "https://source.unsplash.com/random/300x300", category: "Food", rating: 4.6, featured: false),
+        Vendor(id: nil, description: "Fresh and tasty sushi", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Sushi World", image: "https://source.unsplash.com/random/300x300", category: "Food", rating: 4.2, featured: true),
+
+        // Fashion Vendors
+        Vendor(id: nil, description: "Latest in trendy fashion", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Fashion Forward", image: "https://source.unsplash.com/random/300x300", category: "Fashion", rating: 4.4, featured: false),
+        Vendor(id: nil, description: "Exclusive designer apparel", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Designer Hub", image: "https://source.unsplash.com/random/300x300", category: "Fashion", rating: 4.9, featured: false),
+        Vendor(id: nil, description: "Affordable stylish clothing", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Budget Fashionista", image: "https://source.unsplash.com/random/300x300", category: "Fashion", rating: 4.0, featured: false),
+        Vendor(id: nil, description: "Urban and streetwear styles", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Urban Trends", image: "https://source.unsplash.com/random/300x300", category: "Fashion", rating: 4.3, featured: true),
+
+        // Other Vendors
+        Vendor(id: nil, description: "Custom artwork and prints", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Artistic Expressions", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.5, featured: false),
+        Vendor(id: nil, description: "Professional photography services", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Capture the Moment", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.7, featured: false),
+        Vendor(id: nil, description: "Expert fitness training", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Fit and Fab", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.6, featured: false),
+        Vendor(id: nil, description: "Reliable tech repair services", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Tech Savvy Repairs", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.1, featured: false),
+        Vendor(id: nil, description: "Handmade jewelry and accessories", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Jewel Creations", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.8, featured: false),
+        Vendor(id: nil, description: "Quality second-hand books", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Book Haven", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.3, featured: false),
+        Vendor(id: nil, description: "Eco-friendly cleaning services", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Green Cleaners", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.2, featured: false),
+        Vendor(id: nil, description: "Professional event planning", schools: ["Spelman", "Morehouse", "Clark Atlanta"], name: "Event Masters", image: "https://source.unsplash.com/random/300x300", category: "Other", rating: 4.5, featured: true)
+    ]
+    func sortSampleVendorsByCategory() {
+            for vendor in sampleVendors {
+                vendorsByCategory[vendor.category, default: []].append(vendor)
+            }
+        }
+   
     
 }
 let mockVendor = Vendor(
@@ -179,5 +212,5 @@ let mockVendor = Vendor(
     image: "image_url",
     category: "TestCategory",
     rating: 4.5,
-    color: "Red"
+    featured: false
 )

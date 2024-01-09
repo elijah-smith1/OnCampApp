@@ -9,7 +9,7 @@ import SwiftUI
 
 
 class MessageCellViewModel: ObservableObject {
-    @StateObject var message = MessageData()
+    @ObservedObject var message = MessageData()
     @Published var username: String = ""
     
     func loadUsername(otherParticipantId: String) {
@@ -32,33 +32,35 @@ struct MessageCell: View {
 
     
     var body: some View {
-        
-        VStack {
-            HStack {
-                CircularProfilePictureView()
-                    .frame(width: 40, height: 40)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(viewModel.username.isEmpty ? "Loading..." : viewModel.username)
-                            .font(.system(size: 14, weight: .semibold))
-                        Spacer()
+        let chatId = message.chatId!
+        NavigationLink(destination: Chat(chatId: chatId)){
+            VStack {
+                HStack {
+                    CircularProfilePictureView()
+                        .frame(width: 40, height: 40)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(viewModel.username.isEmpty ? "Loading..." : viewModel.username)
+                                .font(.system(size: 14, weight: .semibold))
+                            Spacer()
+                        }
+                        Text(message.content)
+                            .font(.system(size: 15))
                     }
-                    Text(message.content)
-                        .font(.system(size: 15))
+                    .foregroundColor(Color("LTBL"))
+                    
+                    Spacer()
                 }
-                .foregroundColor(Color("LTBL"))
+                .padding(.horizontal)
+                .onAppear {
+                    viewModel.loadUsername(otherParticipantId: message.otherParticipantId ?? "")
+                }
                 
-                Spacer()
+                Divider()
             }
-            .padding(.horizontal)
-            .onAppear {
-                viewModel.loadUsername(otherParticipantId: message.otherParticipantId ?? "")
-            }
-            
-            Divider()
+            .padding(.top)
         }
-        .padding(.top)
     }
 }
 

@@ -10,12 +10,16 @@ import SwiftUI
 struct CMCells: View {
     let message: Message
     var body: some View {
+        
+        let chatId = message.chatId!
+        
         VStack {
-            MessageCell(message: message)
-            
-            Divider()
-            
-            
+            NavigationLink(destination: Chat(chatId: chatId)){
+                MessageCell(message: message)
+                
+                Divider()
+                
+            }
             
         }
         .padding(.horizontal,43)

@@ -1,9 +1,8 @@
-//
-//  ProfileViewModel.swift
-//  OnCampApp
-//
-//  Created by Elijah Smith on 11/7/23.
-//
+
+
+
+
+
 
 import Foundation
 import FirebaseAuth
@@ -15,52 +14,37 @@ class ProfileViewModel: ObservableObject {
     @Published var userReposts: [Post] = []
     @Published var userLikes: [Post] = []
     var uid = Auth.auth().currentUser!.uid
-    
-    
-    init() {
-        Task{
-           try await fetchUserPostData()
-            print("Debug:: REPOSTS \(self.userReposts)")
-            print("Debug:: Likes \(self.userLikes)")
-            print("Debug:: POSTS \(self.userPosts)")
+
+    // Removed the Task from init and created a separate method to load posts
+    func loadUserPosts() {
+        Task {
+            await fetchUserPostData()
         }
     }
   
-
-    func fetchUserPostData() async throws {
+    func fetchUserPostData() async {
         do {
-           
-            let userPostIDs = try await PostData.fetchPostsforUID(Uid: uid )
+            let userPostIDs = try await PostData.fetchPostsforUID(Uid: uid)
             self.userPosts = try await PostData.fetchPostData(for: userPostIDs)
+            print("Debug:: POSTS \(self.userPosts)")
         } catch {
-            
-            
             print("Error fetching user posts: \(error)")
         }
         
         do {
-      
-            let userRepostIDs = try await PostData.fetchRepostsforUID(Uid: uid )
+            let userRepostIDs = try await PostData.fetchRepostsforUID(Uid: uid)
             self.userReposts = try await PostData.fetchPostData(for: userRepostIDs)
+            print("Debug:: REPOSTS \(self.userReposts)")
         } catch {
-            
-            
             print("Error fetching user reposts: \(error)")
         }
         
         do {
-            
-            let userLikesIDs = try await PostData.fetchRepostsforUID(Uid: uid )
+            let userLikesIDs = try await PostData.fetchLikesforUID(Uid: uid)
             self.userLikes = try await PostData.fetchPostData(for: userLikesIDs)
+            print("Debug:: Likes \(self.userLikes)")
         } catch {
-            
-            
             print("Error fetching user likes: \(error)")
         }
-        
-        
-        
-        
     }
 }
-

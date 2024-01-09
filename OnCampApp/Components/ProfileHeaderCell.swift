@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+
 
 struct ProfileHeaderCell: View {
     let user: User?
@@ -89,22 +91,24 @@ struct ProfileHeaderCell: View {
                            }
                            .buttonStyle(CustomButtonStyle())
                        } else if followingStatus == "OwnSelf" {
-                           HStack {
-                               NavigationLink(destination: editProfileView()){
-                                   Button("Edit Profile") {
-                                       
+                       
+                               HStack {
+                                   NavigationLink(destination: editProfileView()){
+                                       Button("Edit Profile") {
+                                           
+                                       }
+                                       .buttonStyle(CustomButtonStyle())
                                    }
-                                   .buttonStyle(CustomButtonStyle())
                                }
                            }
-                       }
+                       
                    }
                    .onAppear {
                        Task {
                            followingStatus = try await followFunc.checkFollowingAndFavoriteStatus(selectedUid: user?.id ?? "")
                        }
                    }
-        .padding(.horizontal, 6.0)
+        .padding(.horizontal, 12.0)
     }
 }
 

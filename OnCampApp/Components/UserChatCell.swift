@@ -11,7 +11,7 @@ struct UserChatCell: View {
             VStack {
                 // Invisible NavigationLink, activated by the shouldNavigate state
               
-                    NavigationLink(destination: Chat(user: user, chatId: chatId ?? "fuckedup"), isActive: $shouldNavigate) {
+                    NavigationLink(destination: Chat( chatId: chatId ?? "fuckedup"), isActive: $shouldNavigate) {
                         EmptyView()
                     }
                 

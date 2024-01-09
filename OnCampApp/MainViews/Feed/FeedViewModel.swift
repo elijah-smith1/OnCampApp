@@ -9,7 +9,7 @@ import Foundation
 
 @MainActor
 class feedViewModel: ObservableObject {
-    @Published var publicPosts: [Post] = []
+    @Published var Posts: [Post] = []
     init() {
         Task{
            try await fetchPublicPosts()
@@ -21,7 +21,7 @@ class feedViewModel: ObservableObject {
             let postIDs = try await PostData.fetchPublicPosts()
             print(postIDs)
             // Then fetch the full Post objects using those IDs
-            self.publicPosts = try await PostData.fetchPostData(for: postIDs)
+            self.Posts = try await PostData.fetchPostData(for: postIDs)
             
         } catch {
             // Handle errors

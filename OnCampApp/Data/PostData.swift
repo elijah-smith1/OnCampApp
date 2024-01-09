@@ -21,6 +21,7 @@ struct Post: Codable, Hashable, Identifiable {  // Conform to Codable and Identi
     var repostCount: Int
     var commentCount: Int
     var username: String
+    var mediaUrl: String?
     
     enum CodingKeys: String, CodingKey {  // Define coding keys if they differ from your property names
         case postText = "content"
@@ -30,6 +31,7 @@ struct Post: Codable, Hashable, Identifiable {  // Conform to Codable and Identi
         case repostCount
         case commentCount
         case username
+        case mediaUrl
     }
     
    
@@ -51,6 +53,23 @@ class PostData: ObservableObject {
     static func fetchPublicPosts() async throws -> [String] {
         var postIds = [String]()
 
+        let snapshot = try await Postdb
+            .whereField("security", isEqualTo: PostOption.publicPost.rawValue)
+            .order(by: "postedAt", descending: true)
+            .limit(to: 25)
+            .getDocuments()
+
+        for document in snapshot.documents {
+            postIds.append(document.documentID)
+        }
+        
+        print(postIds)
+        return postIds
+    }
+    
+    static func fetchFollowingPosts() async throws -> [String] {
+        var postIds = [String]()
+       
         let snapshot = try await Postdb
             .whereField("security", isEqualTo: PostOption.publicPost.rawValue)
             .order(by: "postedAt", descending: true)
@@ -126,7 +145,9 @@ class PostData: ObservableObject {
                 throw NSError(domain: "PostError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Post not found"])
             }
             
-            // Manually create a Post from the data dictionary
+            // Fetch the mediaUrl
+            let mediaUrl = data["mediaUrl"] as? String
+
             if let postText = data["content"] as? String,
                let postedBy = data["postedBy"] as? String,
                let timestamp = data["postedAt"] as? Timestamp,
@@ -135,20 +156,20 @@ class PostData: ObservableObject {
                let commentCount = data["commentCount"] as? Int,
                let username = data["username"] as? String {
 
-               let postedAt = Timestamp(date: timestamp.dateValue())
+                let postedAt = Timestamp(date: timestamp.dateValue())
 
-               let post = Post(
-                   id: documentSnapshot.documentID,
-                   postText: postText,
-                   postedBy: postedBy,
-                   postedAt: postedAt,
-                   likeCount: likeCount,
-                   repostCount: repostCount,
-                   commentCount: commentCount,
-                   username: username
-               )
-           
-                
+                let post = Post(
+                    id: documentSnapshot.documentID,
+                    postText: postText,
+                    postedBy: postedBy,
+                    postedAt: postedAt,
+                    likeCount: likeCount,
+                    repostCount: repostCount,
+                    commentCount: commentCount,
+                    username: username,
+                    mediaUrl: mediaUrl // Add the media URL to the Post object
+                )
+            
                 posts.append(post)
                 print("this function was ran here are the posts :::: \(posts)")
             } else {
@@ -156,11 +177,9 @@ class PostData: ObservableObject {
             }
         }
 
-        
         return posts
     }
-
-
+   
     
    
 
@@ -280,7 +299,7 @@ class PostData: ObservableObject {
 
     func listenToComments(forPost postId: String, completion: @escaping ([Comment]) -> Void) -> ListenerRegistration {
         let db = Firestore.firestore()
-        let commentsRef = db.collection("posts").document(postId).collection("comments")
+        let commentsRef = db.collection("Posts").document(postId).collection("comments")
 
         let listener = commentsRef
             .order(by: "timeSent", descending: false)

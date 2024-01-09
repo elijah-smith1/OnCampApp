@@ -198,7 +198,7 @@ class UserData : ObservableObject {
                 try await selectedUserFollowersRef.document(loggedInUid).delete()
             } else {
                 try await loggedInUserFollowingRef.document(selectedUid).setData([:])
-                try await loggedInUserFavoritesRef.document(selectedUid).setData([:])
+               
                 try await selectedUserFollowersRef.document(loggedInUid).setData([:])
             }
         } catch {
@@ -215,22 +215,23 @@ class UserData : ObservableObject {
         }
 
         let loggedInUserRef = db.collection("Users").document(loggedInUid)
+        let loggedInUserFavoritesRef = loggedInUserRef.collection("Favorites")
 
         do {
-            let loggedInUserDocument = try await loggedInUserRef.getDocument()
-            var loggedInUserFavorites = loggedInUserDocument.data()?["favorites"] as? [String] ?? []
+            let favoriteDocument = try await loggedInUserFavoritesRef.document(selectedUid).getDocument()
+            let isFavorite = favoriteDocument.exists
 
-            if loggedInUserFavorites.contains(selectedUid) {
-                loggedInUserFavorites.removeAll { $0 == selectedUid }
+            // If already a favorite, remove from favorites, else add to favorites
+            if isFavorite {
+                try await loggedInUserFavoritesRef.document(selectedUid).delete()
             } else {
-                loggedInUserFavorites.append(selectedUid)
+                try await loggedInUserFavoritesRef.document(selectedUid).setData([:])
             }
-
-            try await loggedInUserRef.updateData(["favorites": loggedInUserFavorites])
         } catch {
             throw error
         }
     }
+
 
     
     func fetchUserData(Uid: String) async throws {

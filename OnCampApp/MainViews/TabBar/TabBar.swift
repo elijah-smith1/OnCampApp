@@ -12,8 +12,7 @@ struct tabBar: View {
     
     @State private var selectedtab = 4
     @StateObject var Tabviewmodel = tabViewModel()
-    @StateObject var feedviewmodel = feedViewModel()
-   
+    @StateObject var messages = inboxViewModel()
     var body: some View {
         if let user = Tabviewmodel.userData.currentUser {
             TabView(selection: $selectedtab) {
@@ -27,7 +26,8 @@ struct tabBar: View {
                 
                 Social()
                     .tabItem {
-                        Image(systemName: selectedtab == 1 ? "trophy.fill" : "trophy")
+                        
+                        Image(systemName: selectedtab == 1 ? "person.3.fill" : "person.3")
                             .environment(\.symbolVariants, selectedtab == 1 ? .fill : .none)
                     }
                     .onAppear {selectedtab = 1}
@@ -66,11 +66,11 @@ struct tabBar: View {
         
     }
 }
-struct tabBar_Previews: PreviewProvider {
-  
-    static var previews: some View {
-        tabBar()
-            .environmentObject(UserData())
-
-    }
-}
+//struct tabBar_Previews: PreviewProvider {
+//  
+//    static var previews: some View {
+//        tabBar()
+//            .environmentObject(UserData())
+//
+//    }
+//}

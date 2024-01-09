@@ -8,14 +8,13 @@
 import SwiftUI
 import Firebase
 import FirebaseFirestore
-
+import Kingfisher
 
 
 
 struct PostCell: View {
    
 
-   @StateObject var postData = PostData()
     
     
     var post : Post
@@ -38,7 +37,7 @@ struct PostCell: View {
                                 .fontWeight(.semibold)
                             Spacer()
                             
-                            Text(postData.relativeTimeString(from: post.postedAt))
+                            Text(PostData.shared.relativeTimeString(from: post.postedAt))
                                 .font(.caption)
                                 .foregroundColor(Color("LTBL"))
 
@@ -53,6 +52,17 @@ struct PostCell: View {
                         Text(post.postText)
                             .font(.footnote)
                             .multilineTextAlignment(.leading)
+                        
+                        if let mediaUrl = post.mediaUrl, let url = URL(string: mediaUrl) {
+                                                  KFImage(url)
+                                                      .resizable()
+                                                      .aspectRatio(contentMode: .fill)
+                                                      .frame(width: 300, height: 200)
+                                                      .clipped()
+                                                      .cornerRadius(8)
+                                                      .padding(.top, 5)
+                                              }
+                        
                         
                         HStack(spacing: 16) {
                             Button {

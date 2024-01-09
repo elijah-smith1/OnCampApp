@@ -1,26 +1,19 @@
-//
-//  ImagePicker.swift
-//  OnCampRelease
-//
-//  Created by Michael Washington on 9/30/23.
-//
-
-
 import SwiftUI
-import Foundation
+import Photos
+import AVFoundation
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     var sourceType: UIImagePickerController.SourceType
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+    func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = sourceType
         picker.delegate = context.coordinator
         return picker
     }
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
     }
 
     func makeCoordinator() -> Coordinator {
@@ -38,9 +31,7 @@ struct ImagePicker: UIViewControllerRepresentable {
             if let uiImage = info[.originalImage] as? UIImage {
                 parent.image = uiImage
             }
-
             picker.dismiss(animated: true)
         }
     }
 }
-
