@@ -24,7 +24,7 @@ struct Profile: View {
                 VStack(spacing: 20) {
                     Spacer()
                     ProfileHeaderCell(user: user)
-                    
+                    Divider()
                     // Filter Bar
                     HStack {
                         ForEach(ProfileTabFilter.allCases, id: \.self) { filter in
@@ -83,7 +83,7 @@ struct FilterBarButton: View {
 
 struct UserRepostsView: View {
     let user: User
-    var body: some View { Text("User's Reposts") }
+    var body: some View { Text("User's Reposts for \(user.username)") }
 }
 
 

@@ -23,11 +23,7 @@ struct UserPostsView: View {
                     }
                 }
             }
-            .onAppear {
-                Task{
-                    try await  viewModel.fetchUserPostData()
-                }
-            }
+           
         }
     }
 }

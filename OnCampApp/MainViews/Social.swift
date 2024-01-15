@@ -33,7 +33,7 @@ struct Social: View {
                     case 3:
                         EmptyView()
                     default:
-                        Text("Default Content")
+                        Events()
                     }
                     
                     Spacer()

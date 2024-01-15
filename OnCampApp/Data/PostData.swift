@@ -67,22 +67,31 @@ class PostData: ObservableObject {
         return postIds
     }
     
-    static func fetchFollowingPosts() async throws -> [String] {
-        var postIds = [String]()
-       
-        let snapshot = try await Postdb
-            .whereField("security", isEqualTo: PostOption.publicPost.rawValue)
-            .order(by: "postedAt", descending: true)
-            .limit(to: 25)
-            .getDocuments()
+    static func fetchPostsForIds(for userIds: [String]) async throws -> [String] {
+        // Reference to the Firestore collection "Posts"
+        let collectionReference = Firestore.firestore().collection("Posts")
+        var allPostIds: [String] = []
+        do {
+            // Fetch the last 25 posts for each user ID in the array
+            for userId in userIds {
+                let querySnapshot = try await collectionReference
+                    .whereField("postedBy", isEqualTo: userId)
+                    .limit(to: 25)
+                    .getDocuments()
 
-        for document in snapshot.documents {
-            postIds.append(document.documentID)
+                // Extract post IDs and add them to the result array
+                let postIds = querySnapshot.documents.map { $0.documentID }
+                allPostIds.append(contentsOf: postIds)
+            }
+
+            return allPostIds
+        } catch {
+            // Propagate the error
+            throw error
         }
-        
-        print(postIds)
-        return postIds
     }
+    
+
     
     static func fetchPostsforUID(Uid: String) async throws -> [String] {
         

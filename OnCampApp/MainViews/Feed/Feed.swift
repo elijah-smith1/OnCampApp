@@ -7,15 +7,17 @@
 
 import SwiftUI
 
+
 struct Feed: View {
-    @StateObject var viewmodel = feedViewModel()
-    @State private var selectedFeed = "Following"
-    let feedOptions = ["Following", "Favorites", "For You"]
+    @ObservedObject var viewmodel = feedViewModel()
+    @State var selectedFeed = "School"
+    let feedOptions = ["Following", "Favorites", "School"]
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
+                  
                     ForEach(viewmodel.Posts, id: \.id) { post in
                         PostCell(post: post)
                     }
@@ -30,14 +32,31 @@ struct Feed: View {
                                 selectedFeed = option
                                 switch selectedFeed {
                                 case "Following":
-                                    EmptyView()
-                                    //viewmodel.loadFollowingPosts()
+                                Task {
+                                    do {
+                                       try await viewmodel.fetchFollowingPosts()
+                                        print ("Fetching following")
+                                    } catch {
+                      print("Error fetching following posts: \(error.localizedDescription)")
+                                    }
+                                }
                                 case "Favorites":
-                                    EmptyView()
-                                    //viewmodel.loadFavoritesPosts()
-                                case "For You":
-                                    EmptyView()
-                                   // viewmodel.loadForYouPosts()
+                                    Task {
+                                        do {
+                                           try await viewmodel.fetchFavoritePosts()
+                                            print("fetching favorites")
+                                        } catch {
+                          print("Error fetching following posts: \(error.localizedDescription)")
+                                        }
+                                    }
+                                case "School":
+                                    Task {
+                                        do {
+                                           try await viewmodel.fetchPublicPosts()
+                                        } catch {
+                          print("Error fetching following posts: \(error.localizedDescription)")
+                                        }
+                                    }
                                 default:
                                     break
                                 }
